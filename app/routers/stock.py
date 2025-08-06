@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID, uuid4
 from datetime import datetime
 from app.core.database import SessionLocal
-from app.models.stock import StockPackage
+from app.models.stock import StockPackage, StockSale
 from app.schemas.stock import StockCreate, StockOut, StockSaleCreate, StockSaleOut
 from app.routers.auth import get_current_user, get_db
 
