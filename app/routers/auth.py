@@ -8,6 +8,8 @@ from jose import jwt
 from uuid import uuid4
 from datetime import datetime, timedelta
 from app.core.config import settings
+from uuid import UUID  # ✅ IMPORTANTE: agregá esto al inicio
+
 
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError  # también te falta este import
@@ -27,6 +29,7 @@ def get_db():
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
+
 def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -35,16 +38,18 @@ def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_db)):
     )
     try:
         payload = jwt.decode(token, settings.JWT_SECRET, algorithms=["HS256"])
-        user_id: str = payload.get("sub")
-        if user_id is None:
+        user_id_str = payload.get("sub")
+        if user_id_str is None:
             raise credentials_exception
-    except JWTError:
+        user_id = UUID(user_id_str)  # ✅ CONVERSIÓN CRÍTICA
+    except (JWTError, ValueError):  # ✅ Manejo de error si no es un UUID válido
         raise credentials_exception
 
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
         raise credentials_exception
     return user
+
 
 def create_access_token(data: dict):
     to_encode = data.copy()
