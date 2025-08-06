@@ -18,7 +18,7 @@ def get_orders(db: Session = Depends(get_db), current_user: User = Depends(get_c
 @router.post("/", response_model=OrderOut)
 def create_order(order: OrderCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     new_order = CustomerOrder(
-        id=UUID(),
+        id=uuid4(),
         user_id=current_user.id,
         **order.dict(),
         created_at=datetime.utcnow(),

@@ -18,7 +18,7 @@ def get_productions(db: Session = Depends(get_db), current_user: User = Depends(
 @router.post("/", response_model=ProductionOut)
 def create_production(prod: ProductionCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     new_record = ProductionRecord(
-        id=UUID(),
+        id=uuid4(),
         user_id=current_user.id,
         **prod.dict(),
         created_at=datetime.utcnow(),
