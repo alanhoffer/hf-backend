@@ -5,7 +5,7 @@ from app.models.order import CustomerOrder
 from app.schemas.order import OrderCreate, OrderOut
 from app.routers.auth import get_current_user, get_db
 from app.models.user import User
-from uuid import UUID
+from uuid import UUID, uuid4
 from datetime import datetime
 
 router = APIRouter()
