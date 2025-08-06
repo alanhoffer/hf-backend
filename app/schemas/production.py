@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import date, datetime
 from typing import Optional
@@ -21,8 +21,7 @@ class ProductionOut(ProductionBase):
     user_id: UUID
     created_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ProductionAcceptanceUpdate(BaseModel):
     accepted_cells: int

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import date, datetime
 
@@ -19,8 +19,7 @@ class StockOut(StockBase):
     user_id: UUID
     created_at: datetime
 
-    class Config:
-        from_attributes = True  # usa from_attributes en lugar de orm_mode
+    model_config = ConfigDict(from_attributes=True)
 
 class StockSaleOut(BaseModel):
     id: UUID
@@ -29,10 +28,9 @@ class StockSaleOut(BaseModel):
     cells_sold: int
     sale_date: date
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class StockSaleCreate(BaseModel):
-    stock_package_id: UUID   # faltaba esto
+    stock_package_id: UUID
     customer_name: str
     cells_sold: int
