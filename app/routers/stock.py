@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID, uuid4
-from datetime import datetime
+from datetime import date, datetime
 from app.core.database import SessionLocal
 from app.models.stock import StockPackage, StockSale
 from app.schemas.stock import StockCreate, StockOut, StockSaleCreate, StockSaleOut
@@ -25,7 +25,7 @@ def get_all_stock(db: Session = Depends(get_db), current_user: User = Depends(ge
 @router.post("/", response_model=StockOut)
 def create_stock_package(stock: StockCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     new_package = StockPackage(
-        id=uuid4(),
+        id=UUID(),
         user_id=current_user.id,
         **stock.dict(),
         created_at=datetime.utcnow(),

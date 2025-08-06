@@ -9,6 +9,8 @@ from app.models.stock import StockPackage, StockSale
 from app.models.order import CustomerOrder
 from app.schemas.dashboard import StatsOut, UpcomingItem, ExpiringItem
 from typing import List
+from sqlalchemy import func
+
 
 
 router = APIRouter()
