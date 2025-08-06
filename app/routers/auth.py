@@ -80,4 +80,11 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_access_token({"sub": str(db_user.id)})
-    return {"access_token": token, "token_type": "bearer"}
+
+    user_out = UserOut.from_orm(db_user)
+
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": user_out
+    }
