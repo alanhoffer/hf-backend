@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
 from app.models.user import User
-from app.schemas.user import UserCreate, UserOut
+from app.schemas.user import UserCreate, UserLogin, UserOut
 from passlib.context import CryptContext
 from jose import jwt
 from uuid import uuid4
@@ -74,7 +74,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/login")
-def login(user: UserCreate, db: Session = Depends(get_db)):
+def login(user: UserLogin, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if not db_user or not pwd_context.verify(user.password, db_user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
