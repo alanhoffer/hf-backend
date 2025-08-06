@@ -13,7 +13,7 @@ app = FastAPI(title="Queen Cell Management System")
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.CORS_ORIGIN],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
