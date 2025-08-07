@@ -1,7 +1,5 @@
-from xmlrpc.client import DateTime
-
 from sqlalchemy.sql import func
-from sqlalchemy import Column, String, Integer, Date, TIMESTAMP, ForeignKey, Text
+from sqlalchemy import Column, String, Integer, Date, TIMESTAMP, ForeignKey, Text, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from app.core.database import Base
