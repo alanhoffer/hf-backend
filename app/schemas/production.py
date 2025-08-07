@@ -46,12 +46,6 @@ class ProductionCreate(BaseModel):
     status: Optional[str] = "active"
     hives: List[HiveCreate]
 
-class ProductionOut(ProductionBase):
-    id: UUID
-    user_id: UUID
-    created_at: datetime
-
-    model_config = ConfigDict(from_attributes=True)
 
 class ProductionAcceptanceUpdate(BaseModel):
     accepted_cells: int
