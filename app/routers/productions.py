@@ -17,17 +17,37 @@ def get_productions(db: Session = Depends(get_db), current_user: User = Depends(
 
 @router.post("/", response_model=ProductionOut)
 def create_production(prod: ProductionCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    production_id = str(uuid4())
     new_record = ProductionRecord(
-        id=uuid4(),
+        id=production_id,
         user_id=current_user.id,
-        **prod.dict(),
+        transfer_date=prod.transfer_date,
+        larvae_transferred=prod.larvae_transferred,
+        accepted_cells=prod.accepted_cells,
+        acceptance_date=prod.acceptance_date,
+        cells_produced=prod.cells_produced,
+        order_id=prod.order_id,
+        notes=prod.notes,
+        status=prod.status or "active",
         created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        updated_at=datetime.utcnow(),
     )
+
     db.add(new_record)
+
+    for hive in prod.hives:
+        new_hive = ProductionHive(
+            id=str(uuid4()),
+            production_id=production_id,
+            hive_name=hive.hive_name
+        )
+        db.add(new_hive)
+
     db.commit()
     db.refresh(new_record)
+
     return new_record
+
 
 
 @router.get("/{production_id}", response_model=ProductionOut)

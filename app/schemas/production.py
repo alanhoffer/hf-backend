@@ -1,8 +1,11 @@
 from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import date, datetime
-from typing import Optional
+from typing import List, Optional
 
+
+class HiveCreate(BaseModel):
+    hive_name: str
 class ProductionBase(BaseModel):
     transfer_date: date
     larvae_transferred: int
@@ -13,8 +16,16 @@ class ProductionBase(BaseModel):
     notes: Optional[str] = None
     status: str = "active"
 
-class ProductionCreate(ProductionBase):
-    pass
+class ProductionCreate(BaseModel):
+    transfer_date: date
+    larvae_transferred: int
+    accepted_cells: Optional[int] = None
+    acceptance_date: Optional[date] = None
+    cells_produced: int
+    order_id: Optional[str] = None
+    notes: Optional[str] = None
+    status: Optional[str] = "active"
+    hives: List[HiveCreate]
 
 class ProductionOut(ProductionBase):
     id: UUID
@@ -26,3 +37,4 @@ class ProductionOut(ProductionBase):
 class ProductionAcceptanceUpdate(BaseModel):
     accepted_cells: int
     acceptance_date: Optional[date] = None
+
