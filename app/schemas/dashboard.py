@@ -14,6 +14,7 @@ class UpcomingItem(BaseModel):
     id: UUID
     customer_name: str
     delivery_date: date
+    larvae_transfer_date: date
     number_of_cells: int
 
 class ExpiringItem(BaseModel):

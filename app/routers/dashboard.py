@@ -76,6 +76,7 @@ def get_upcoming_events(db: Session = Depends(get_db), current_user: User = Depe
             id=order.id,
             customer_name=order.customer_name,
             delivery_date=order.delivery_date,
+            larvae_transfer_date=order.larvae_transfer_date,
             number_of_cells=order.number_of_cells
         )
         for order in upcoming_orders
