@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID, uuid4
 from datetime import datetime, date
 from app.core.database import SessionLocal
-from app.models.production import ProductionRecord
+from app.models.production import ProductionHive, ProductionRecord
 from app.schemas.production import (
     ProductionCreate,
     ProductionOut,

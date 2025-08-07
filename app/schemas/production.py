@@ -1,30 +1,28 @@
 from pydantic import BaseModel, ConfigDict
+from typing import List, Optional
 from uuid import UUID
 from datetime import date, datetime
-from typing import List, Optional
-
 
 class HiveOut(BaseModel):
     hive_name: str
     created_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ProductionOut(BaseModel):
-    id: str
-    order_id: str
+    id: UUID
+    user_id: UUID
+    order_id: Optional[str] = None
     transfer_date: date
-    acceptance_date: date | None
+    acceptance_date: Optional[date] = None
     cells_produced: int
     larvae_transferred: int
-    notes: str
+    notes: Optional[str] = None
     created_at: datetime
-    hives: List[HiveOut]  # ✅ Hives incluidos
+    hives: List[HiveOut] = []  # <--- aquí aseguramos que venga lista, no None
 
-    class Config:
-        orm_mode = True
-        
+    model_config = ConfigDict(from_attributes=True)
+
 class HiveCreate(BaseModel):
     hive_name: str
 class ProductionBase(BaseModel):
