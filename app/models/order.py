@@ -14,5 +14,7 @@ class CustomerOrder(Base):
     delivery_date = Column(Date, nullable=False)
     larvae_transfer_date = Column(Date, nullable=False)
     status = Column(String(50), default="pending")
+    cells_produced = Column(Integer, default=0)          # <-- agregar
+    cells_remaining = Column(Integer, default=0)         # <-- agregar
     created_at = Column(TIMESTAMP)
     updated_at = Column(TIMESTAMP)

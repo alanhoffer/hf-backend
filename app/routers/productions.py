@@ -1,3 +1,4 @@
+from app.models.order import CustomerOrder
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID, uuid4
@@ -16,22 +17,27 @@ from app.models.user import User
 router = APIRouter()
 
 
-@router.get("/", response_model=list[ProductionOut])
-def get_productions(
-    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
-):
-    productions = (
-        db.query(ProductionRecord)
-        .options(selectinload(ProductionRecord.hives))
-        .filter(ProductionRecord.user_id == current_user.id)
-        .all()
-    )
+@router.post("/productions", response_model=ProductionOut)
+def create_production(production_in: ProductionCreate, db: Session = Depends(get_db)):
+    production = ProductionRecord(**production_in.dict())
+    db.add(production)
 
+    if production.order_id:
+        order = db.query(CustomerOrder).filter(CustomerOrder.id == production.order_id).first()
+        if order:
+            order.cells_produced = (order.cells_produced or 0) + production.cells_produced
+            remaining = order.number_of_cells - order.cells_produced
+            if remaining > 0:
+                order.status = "in_production"
+                order.cells_remaining = remaining
+            else:
+                order.status = "completed"
+                order.cells_remaining = 0
+            db.add(order)
 
-    for p in productions:
-        print(f"Producción {p.id} tiene {len(p.hives)} colmenas")
-
-    return productions
+    db.commit()
+    db.refresh(production)
+    return production
 
 
 @router.post("/", response_model=ProductionOut)
