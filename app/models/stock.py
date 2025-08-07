@@ -8,6 +8,7 @@ from app.core.database import Base
 # UUID compatible con MySQL (usa CHAR(36))
 class GUID(TypeDecorator):
     impl = CHAR(36)
+    cache_ok = True  # <--- agregá esta línea
 
     def process_bind_param(self, value, dialect):
         if value is None:
