@@ -1,6 +1,7 @@
 from sqlalchemy.sql import func
 from sqlalchemy import Column, String, Integer, Date, TIMESTAMP, ForeignKey, Text, DateTime
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 import uuid
 from app.core.database import Base
 
@@ -20,6 +21,10 @@ class ProductionRecord(Base):
     created_at = Column(TIMESTAMP)
     updated_at = Column(TIMESTAMP)
 
+    # 👇 Relación con colmenas asociadas a esta producción
+    hives = relationship("Hive", back_populates="production", cascade="all, delete-orphan")
+
+
 
 class ProductionHive(Base):
     __tablename__ = "production_hives"
@@ -28,3 +33,14 @@ class ProductionHive(Base):
     production_id = Column(String(36), ForeignKey("productions.id"))
     hive_name = Column(String(255), nullable=False)
     created_at = Column(DateTime, server_default=func.now())
+
+class Hive(Base):
+    __tablename__ = "hives"
+
+    id = Column(String(36), primary_key=True, index=True)
+    production_id = Column(UUID(as_uuid=True), ForeignKey("production_records.id", ondelete="CASCADE"))
+    hive_name = Column(String(255), nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
+
+    # 👇 Relación inversa a la producción
+    production = relationship("ProductionRecord", back_populates="hives")

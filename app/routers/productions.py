@@ -6,15 +6,19 @@ from app.core.database import SessionLocal
 from app.models.production import ProductionRecord
 from app.schemas.production import ProductionCreate, ProductionOut, ProductionAcceptanceUpdate
 from app.routers.auth import get_current_user, get_db
+from sqlalchemy.orm import selectinload
 from app.models.user import User
 
 router = APIRouter()
 
 @router.get("/", response_model=list[ProductionOut])
 def get_productions(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return db.query(ProductionRecord).filter(ProductionRecord.user_id == current_user.id).all()
-
-
+    return (
+        db.query(ProductionRecord)
+        .options(selectinload(ProductionRecord.hives))  # 👈 carga colmenas
+        .filter(ProductionRecord.user_id == current_user.id)
+        .all()
+    )
 @router.post("/", response_model=ProductionOut)
 def create_production(prod: ProductionCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     production_id = str(uuid4())

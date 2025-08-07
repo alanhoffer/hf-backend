@@ -4,6 +4,27 @@ from datetime import date, datetime
 from typing import List, Optional
 
 
+class HiveOut(BaseModel):
+    hive_name: str
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class ProductionOut(BaseModel):
+    id: str
+    order_id: str
+    transfer_date: date
+    acceptance_date: date | None
+    cells_produced: int
+    larvae_transferred: int
+    notes: str
+    created_at: datetime
+    hives: List[HiveOut]  # ✅ Hives incluidos
+
+    class Config:
+        orm_mode = True
+        
 class HiveCreate(BaseModel):
     hive_name: str
 class ProductionBase(BaseModel):
