@@ -17,27 +17,21 @@ from app.models.user import User
 router = APIRouter()
 
 
-@router.post("/productions", response_model=ProductionOut)
-def create_production(production_in: ProductionCreate, db: Session = Depends(get_db)):
-    production = ProductionRecord(**production_in.dict())
-    db.add(production)
+@router.get("/", response_model=list[ProductionOut])
+def get_productions(
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+):
+    productions = (
+        db.query(ProductionRecord)
+        .options(selectinload(ProductionRecord.hives))
+        .filter(ProductionRecord.user_id == current_user.id)
+        .all()
+    )
 
-    if production.order_id:
-        order = db.query(CustomerOrder).filter(CustomerOrder.id == production.order_id).first()
-        if order:
-            order.cells_produced = (order.cells_produced or 0) + production.cells_produced
-            remaining = order.number_of_cells - order.cells_produced
-            if remaining > 0:
-                order.status = "in_production"
-                order.cells_remaining = remaining
-            else:
-                order.status = "completed"
-                order.cells_remaining = 0
-            db.add(order)
+    for p in productions:
+        print(f"Producción {p.id} tiene {len(p.hives)} colmenas")
 
-    db.commit()
-    db.refresh(production)
-    return production
+    return productions
 
 
 @router.post("/", response_model=ProductionOut)
@@ -69,6 +63,22 @@ def create_production(
             id=str(uuid4()), production_id=production_id, hive_name=hive.hive_name
         )
         db.add(new_hive)
+
+    # Lógica para actualizar orden vinculada
+    if prod.order_id:
+        order = (
+            db.query(CustomerOrder).filter(CustomerOrder.id == prod.order_id).first()
+        )
+        if order:
+            order.cells_produced = (order.cells_produced or 0) + prod.cells_produced
+            remaining = order.number_of_cells - order.cells_produced
+            if remaining > 0:
+                order.status = "in_production"
+                order.cells_remaining = remaining
+            else:
+                order.status = "completed"
+                order.cells_remaining = 0
+            db.add(order)
 
     db.commit()
     db.refresh(new_record)
