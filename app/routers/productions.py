@@ -4,23 +4,42 @@ from uuid import UUID, uuid4
 from datetime import datetime, date
 from app.core.database import SessionLocal
 from app.models.production import ProductionRecord
-from app.schemas.production import ProductionCreate, ProductionOut, ProductionAcceptanceUpdate
+from app.schemas.production import (
+    ProductionCreate,
+    ProductionOut,
+    ProductionAcceptanceUpdate,
+)
 from app.routers.auth import get_current_user, get_db
 from sqlalchemy.orm import selectinload
 from app.models.user import User
 
 router = APIRouter()
 
+
 @router.get("/", response_model=list[ProductionOut])
-def get_productions(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return (
+def get_productions(
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+):
+    productions = (
         db.query(ProductionRecord)
-        .options(selectinload(ProductionRecord.hives))  # 👈 carga colmenas
+        .options(selectinload(ProductionRecord.hives))
         .filter(ProductionRecord.user_id == current_user.id)
         .all()
     )
+
+
+    for p in productions:
+        print(f"Producción {p.id} tiene {len(p.hives)} colmenas")
+
+    return productions
+
+
 @router.post("/", response_model=ProductionOut)
-def create_production(prod: ProductionCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def create_production(
+    prod: ProductionCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     production_id = str(uuid4())
     new_record = ProductionRecord(
         id=production_id,
@@ -41,9 +60,7 @@ def create_production(prod: ProductionCreate, db: Session = Depends(get_db), cur
 
     for hive in prod.hives:
         new_hive = ProductionHive(
-            id=str(uuid4()),
-            production_id=production_id,
-            hive_name=hive.hive_name
+            id=str(uuid4()), production_id=production_id, hive_name=hive.hive_name
         )
         db.add(new_hive)
 
@@ -53,18 +70,40 @@ def create_production(prod: ProductionCreate, db: Session = Depends(get_db), cur
     return new_record
 
 
-
 @router.get("/{production_id}", response_model=ProductionOut)
-def get_production(production_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    record = db.query(ProductionRecord).filter(ProductionRecord.id == production_id, ProductionRecord.user_id == current_user.id).first()
+def get_production(
+    production_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    record = (
+        db.query(ProductionRecord)
+        .filter(
+            ProductionRecord.id == production_id,
+            ProductionRecord.user_id == current_user.id,
+        )
+        .first()
+    )
     if not record:
         raise HTTPException(status_code=404, detail="Production record not found")
     return record
 
 
 @router.put("/{production_id}", response_model=ProductionOut)
-def update_production(production_id: UUID, prod: ProductionCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    record = db.query(ProductionRecord).filter(ProductionRecord.id == production_id, ProductionRecord.user_id == current_user.id).first()
+def update_production(
+    production_id: UUID,
+    prod: ProductionCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    record = (
+        db.query(ProductionRecord)
+        .filter(
+            ProductionRecord.id == production_id,
+            ProductionRecord.user_id == current_user.id,
+        )
+        .first()
+    )
     if not record:
         raise HTTPException(status_code=404, detail="Production record not found")
 
@@ -78,8 +117,20 @@ def update_production(production_id: UUID, prod: ProductionCreate, db: Session =
 
 
 @router.put("/{production_id}/acceptance", response_model=ProductionOut)
-def update_acceptance(production_id: UUID, acceptance: ProductionAcceptanceUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    record = db.query(ProductionRecord).filter(ProductionRecord.id == production_id, ProductionRecord.user_id == current_user.id).first()
+def update_acceptance(
+    production_id: UUID,
+    acceptance: ProductionAcceptanceUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    record = (
+        db.query(ProductionRecord)
+        .filter(
+            ProductionRecord.id == production_id,
+            ProductionRecord.user_id == current_user.id,
+        )
+        .first()
+    )
     if not record:
         raise HTTPException(status_code=404, detail="Production record not found")
 
@@ -93,8 +144,19 @@ def update_acceptance(production_id: UUID, acceptance: ProductionAcceptanceUpdat
 
 
 @router.delete("/{production_id}")
-def delete_production(production_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    record = db.query(ProductionRecord).filter(ProductionRecord.id == production_id, ProductionRecord.user_id == current_user.id).first()
+def delete_production(
+    production_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    record = (
+        db.query(ProductionRecord)
+        .filter(
+            ProductionRecord.id == production_id,
+            ProductionRecord.user_id == current_user.id,
+        )
+        .first()
+    )
     if not record:
         raise HTTPException(status_code=404, detail="Production record not found")
     db.delete(record)
