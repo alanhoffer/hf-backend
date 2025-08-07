@@ -1,6 +1,6 @@
 from xmlrpc.client import DateTime
 
-from numpy import ufunc
+from sqlalchemy.sql import func
 from sqlalchemy import Column, String, Integer, Date, TIMESTAMP, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
@@ -29,4 +29,4 @@ class ProductionHive(Base):
     id = Column(String(36), primary_key=True)
     production_id = Column(String(36), ForeignKey("productions.id"))
     hive_name = Column(String(255), nullable=False)
-    created_at = Column(DateTime, server_default=ufunc.now())
+    created_at = Column(DateTime, server_default=func.now())
